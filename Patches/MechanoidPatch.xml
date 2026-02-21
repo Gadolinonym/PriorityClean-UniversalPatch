@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>fyarn.PriorityClean</li>
+    </mods>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[race/workEnabled/li[.='Cleaning']]/race/workEnabled</xpath>
+      <value>
+        <li>PriorityCleaning</li>
+      </value>
+    </match>
+  </Operation>
+
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>fyarn.PriorityClean</li>
+    </mods>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[race/workEnabled/li[.='Cleaning']]/race/workEnabled/li[.='PriorityCleaning'][preceding-sibling::li[.='PriorityCleaning']]</xpath>
+    </match>
+  </Operation>
+</Patch>
