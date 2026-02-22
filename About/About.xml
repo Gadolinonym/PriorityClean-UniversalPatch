@@ -18,6 +18,7 @@
   </loadAfter>
   <description>PriorityClean - Universal Patch
   
-Patches all races (notably mechanoids) that can clean with the ability to also perform PriorityClean 
+Adds PriorityCleaning to races that can clean, including RimWorld 1.6 colony mechs.
+Includes compatibility runtime support for PriorityClean workgiver checks and life-stage cleaning restrictions.
 </description>
 </ModMetaData>

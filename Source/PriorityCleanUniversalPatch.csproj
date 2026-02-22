@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>PriorityCleanUniversalPatch</AssemblyName>
+    <RootNamespace>Gadolinium.PriorityClean.UniversalPatch</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>..\Assemblies\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RimWorldDir Condition="'$(RimWorldDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\RimWorld</RimWorldDir>
+    <PriorityCleanDir Condition="'$(PriorityCleanDir)' == ''">C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\1294779672</PriorityCleanDir>
+    <RimWorldManagedPath Condition="'$(RimWorldManagedPath)' == ''">$(RimWorldDir)\RimWorldWin64_Data\Managed</RimWorldManagedPath>
+    <PriorityCleanPath Condition="'$(PriorityCleanPath)' == ''">$(PriorityCleanDir)\Common\Assemblies\PriorityClean.dll</PriorityCleanPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(RimWorldManagedPath)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Verse" Condition="Exists('$(RimWorldManagedPath)\Verse.dll')">
+      <HintPath>$(RimWorldManagedPath)\Verse.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(RimWorldManagedPath)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PriorityClean">
+      <HintPath>$(PriorityCleanPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
