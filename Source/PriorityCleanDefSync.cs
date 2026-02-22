@@ -26,6 +26,7 @@ public static class PriorityCleanDefSync
         int workGiverClassUpdates = SynchronizeWorkGiverClass();
         int mechWorkTypeAdds = 0;
         int mechWorkTypeDuplicateRemovals = 0;
+        int mechWorkTypeReorders = 0;
         int lifeStageAdds = 0;
 
         foreach (ThingDef thingDef in DefDatabase<ThingDef>.AllDefsListForReading)
@@ -36,8 +37,21 @@ public static class PriorityCleanDefSync
                 continue;
             }
 
-            SyncMechEnabledWorkTypes(race, cleaning, priorityCleaning, ref mechWorkTypeAdds, ref mechWorkTypeDuplicateRemovals);
+            SyncMechEnabledWorkTypes(
+                race,
+                cleaning,
+                priorityCleaning,
+                ref mechWorkTypeAdds,
+                ref mechWorkTypeDuplicateRemovals,
+                ref mechWorkTypeReorders);
             lifeStageAdds += SyncLifeStageWorkSettings(race, cleaning, priorityCleaning);
+        }
+
+        bool bumpedNaturalPriority = false;
+        if (priorityCleaning.naturalPriority <= cleaning.naturalPriority)
+        {
+            priorityCleaning.naturalPriority = cleaning.naturalPriority + 1;
+            bumpedNaturalPriority = true;
         }
 
         bool madeNonColonistCompatible = false;
@@ -51,7 +65,7 @@ public static class PriorityCleanDefSync
         bool cleansweeperHasPriority = cleansweeper?.race?.mechEnabledWorkTypes?.Contains(priorityCleaning) == true;
 
         Log.Message(
-            $"[PriorityClean Universal Patch] Def sync complete: workgiverClassUpdates={workGiverClassUpdates}, mechAdds={mechWorkTypeAdds}, mechDuplicateRemovals={mechWorkTypeDuplicateRemovals}, lifeStageAdds={lifeStageAdds}, requireCapableColonistSetFalse={madeNonColonistCompatible}, cleansweeperHasPriorityCleaning={cleansweeperHasPriority}.");
+            $"[PriorityClean Universal Patch] Def sync complete: workgiverClassUpdates={workGiverClassUpdates}, mechAdds={mechWorkTypeAdds}, mechDuplicateRemovals={mechWorkTypeDuplicateRemovals}, mechReorders={mechWorkTypeReorders}, lifeStageAdds={lifeStageAdds}, naturalPriorityBumped={bumpedNaturalPriority}, requireCapableColonistSetFalse={madeNonColonistCompatible}, cleansweeperHasPriorityCleaning={cleansweeperHasPriority}.");
     }
 
     private static int SynchronizeWorkGiverClass()
@@ -80,7 +94,8 @@ public static class PriorityCleanDefSync
         WorkTypeDef cleaning,
         WorkTypeDef priorityCleaning,
         ref int mechWorkTypeAdds,
-        ref int mechWorkTypeDuplicateRemovals)
+        ref int mechWorkTypeDuplicateRemovals,
+        ref int mechWorkTypeReorders)
     {
         List<WorkTypeDef> mechEnabled = race.mechEnabledWorkTypes;
         if (mechEnabled == null || mechEnabled.Count == 0 || !mechEnabled.Contains(cleaning))
@@ -108,6 +123,16 @@ public static class PriorityCleanDefSync
                 mechEnabled.RemoveAt(i);
                 mechWorkTypeDuplicateRemovals++;
             }
+        }
+
+        int cleaningIndex = mechEnabled.IndexOf(cleaning);
+        int priorityIndex = mechEnabled.IndexOf(priorityCleaning);
+        if (cleaningIndex >= 0 && priorityIndex > cleaningIndex)
+        {
+            mechEnabled.RemoveAt(priorityIndex);
+            cleaningIndex = mechEnabled.IndexOf(cleaning);
+            mechEnabled.Insert(cleaningIndex, priorityCleaning);
+            mechWorkTypeReorders++;
         }
     }
 
