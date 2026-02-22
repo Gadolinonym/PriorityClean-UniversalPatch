@@ -36,3 +36,7 @@ This patch applies XML and runtime sync to:
 - route PriorityClean workgiver defs through a mech-compatible class,
 - gate regular mech `CleanFilth` work while reachable priority filth exists,
 - keep life-stage cleaning restrictions mirrored to `PriorityCleaning` where needed.
+
+
+### Github: <https://github.com/Gadolinonym/PriorityClean-UniversalPatch>
+### Steam Workshop: <https://example.com/>
