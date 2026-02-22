@@ -24,7 +24,7 @@ Load this mod **after**:
 - May show one-time errors when loading existing saves.
 - **Always** back up saves before changing your mod list.
 
-## Removal Safety
+## Can I Remove Mid-Game?
 - Should be ok. Works in testing.
 - If you remove `PriorityClean`, it is recommended to remove this patch mod as well.
 - **Always** back up saves before changing your mod list.
