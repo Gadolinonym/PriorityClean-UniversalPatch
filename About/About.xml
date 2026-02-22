@@ -3,8 +3,9 @@
   <packageId>Gadolinium.PriorityClean.UniversalPatch</packageId>
   <name>PriorityClean - Universal Patch</name>
   <author>Gadolinium</author>
-  <modVersion>0.1.0</modVersion>
+  <modVersion>1.0</modVersion>
   <url>https://github.com/Gadolinonym/PriorityClean-UniversalPatch</url>
+  <modIconPath>About/ModIcon</modIconPath>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
@@ -12,7 +13,7 @@
     <li>
       <packageId>fyarn.PriorityClean</packageId>
       <displayName>PriorityClean</displayName>
-      <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=1294779672</steamWorkshopUrl>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/1294779672</steamWorkshopUrl>
     </li>
   </modDependencies>
   <loadAfter>
