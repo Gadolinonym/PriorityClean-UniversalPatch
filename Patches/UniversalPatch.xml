@@ -68,4 +68,29 @@
       </value>
     </match>
   </Operation>
+
+  <!-- Gate regular CleanFilth for colony mechs while priority filth exists -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>fyarn.PriorityClean</li>
+    </mods>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/WorkGiverDef[defName='CleanFilth']/giverClass</xpath>
+      <value>
+        <giverClass>Gadolinium.PriorityClean.UniversalPatch.WorkGiver_CleanFilth_MechPriorityGate</giverClass>
+      </value>
+    </match>
+  </Operation>
+
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>fyarn.PriorityClean</li>
+    </mods>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/WorkGiverDef[defName='CleanFilth' and not(giverClass)]</xpath>
+      <value>
+        <giverClass>Gadolinium.PriorityClean.UniversalPatch.WorkGiver_CleanFilth_MechPriorityGate</giverClass>
+      </value>
+    </match>
+  </Operation>
 </Patch>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using Verse;
 
@@ -23,9 +24,27 @@ public static class PriorityCleanDefSync
             return;
         }
 
-        WorkGiverDef priorityWorkGiver;
-        int workGiverClassUpdates = SynchronizeWorkGiverClass(out priorityWorkGiver);
-        int workGiverPriorityTweaks = SynchronizeWorkGiverPriority(priorityWorkGiver);
+        bool usedPriorityWorkGiverFallback;
+        List<WorkGiverDef> priorityWorkGivers = FindPriorityWorkGivers(priorityCleaning, out usedPriorityWorkGiverFallback);
+        int workGiverClassUpdates = 0;
+        int workGiverMechFlagUpdates = 0;
+        for (int i = 0; i < priorityWorkGivers.Count; i++)
+        {
+            SynchronizePriorityWorkGiverDef(priorityWorkGivers[i], ref workGiverClassUpdates, ref workGiverMechFlagUpdates);
+        }
+
+        int cleanFilthGateUpdates = SynchronizeCleanFilthGateWorkGiver(cleaning);
+
+        bool madeNonColonistCompatible = false;
+        if (priorityCleaning.requireCapableColonist)
+        {
+            priorityCleaning.requireCapableColonist = false;
+            madeNonColonistCompatible = true;
+        }
+
+        int racesScanned = 0;
+        int eligibleMechRaces = 0;
+        int changedEligibleMechRaces = 0;
         int mechWorkTypeAdds = 0;
         int mechWorkTypeDuplicateRemovals = 0;
         int mechWorkTypeReorders = 0;
@@ -39,101 +58,146 @@ public static class PriorityCleanDefSync
                 continue;
             }
 
+            racesScanned++;
+
+            int raceLifeStageAdds = SyncLifeStageWorkSettings(race, cleaning, priorityCleaning);
+            lifeStageAdds += raceLifeStageAdds;
+
+            List<WorkTypeDef> mechEnabledWorkTypes = race.mechEnabledWorkTypes;
+            bool isEligibleMechRace = mechEnabledWorkTypes != null && mechEnabledWorkTypes.Count > 0 && mechEnabledWorkTypes.Contains(cleaning);
+            if (!isEligibleMechRace)
+            {
+                if (raceLifeStageAdds > 0)
+                {
+                    Log.Message(
+                        $"[PriorityClean Universal Patch] Race sync: raceDef={thingDef.defName}, mechEligible=false, addedPriority=0, removedDuplicates=0, reordered=0, lifeStageAdds={raceLifeStageAdds}.");
+                }
+
+                continue;
+            }
+
+            eligibleMechRaces++;
+
+            int raceAdds = 0;
+            int raceDuplicateRemovals = 0;
+            int raceReorders = 0;
             SyncMechEnabledWorkTypes(
                 race,
                 cleaning,
                 priorityCleaning,
-                ref mechWorkTypeAdds,
-                ref mechWorkTypeDuplicateRemovals,
-                ref mechWorkTypeReorders);
-            lifeStageAdds += SyncLifeStageWorkSettings(race, cleaning, priorityCleaning);
-        }
+                ref raceAdds,
+                ref raceDuplicateRemovals,
+                ref raceReorders);
 
-        bool bumpedNaturalPriority = false;
-        if (priorityCleaning.naturalPriority <= cleaning.naturalPriority)
-        {
-            priorityCleaning.naturalPriority = cleaning.naturalPriority + 1;
-            bumpedNaturalPriority = true;
-        }
+            mechWorkTypeAdds += raceAdds;
+            mechWorkTypeDuplicateRemovals += raceDuplicateRemovals;
+            mechWorkTypeReorders += raceReorders;
 
-        bool madeNonColonistCompatible = false;
-        if (priorityCleaning.requireCapableColonist)
-        {
-            priorityCleaning.requireCapableColonist = false;
-            madeNonColonistCompatible = true;
-        }
+            if (raceAdds > 0 || raceDuplicateRemovals > 0 || raceReorders > 0 || raceLifeStageAdds > 0)
+            {
+                changedEligibleMechRaces++;
+            }
 
-        ThingDef cleansweeper = DefDatabase<ThingDef>.GetNamedSilentFail("Mech_Cleansweeper");
-        bool cleansweeperHasPriority = cleansweeper?.race?.mechEnabledWorkTypes?.Contains(priorityCleaning) == true;
-        WorkGiverDef cleanFilth = DefDatabase<WorkGiverDef>.GetNamedSilentFail("CleanFilth");
-        WorkGiverDef cleanClearPollution = DefDatabase<WorkGiverDef>.GetNamedSilentFail("CleanClearPollution");
-        int priorityWorkGiverPriority = priorityWorkGiver?.priorityInType ?? -1;
-        bool priorityWorkGiverMechCapable = priorityWorkGiver?.canBeDoneByMechs ?? false;
-        int cleanFilthPriority = cleanFilth?.priorityInType ?? -1;
-        int cleanPollutionPriority = cleanClearPollution?.priorityInType ?? -1;
+            Log.Message(
+                $"[PriorityClean Universal Patch] Race sync: raceDef={thingDef.defName}, mechEligible=true, addedPriority={raceAdds}, removedDuplicates={raceDuplicateRemovals}, reordered={raceReorders}, lifeStageAdds={raceLifeStageAdds}.");
+        }
 
         Log.Message(
-            $"[PriorityClean Universal Patch] Def sync complete: workgiverClassUpdates={workGiverClassUpdates}, workgiverPriorityTweaks={workGiverPriorityTweaks}, priorityWorkgiverPriorityInType={priorityWorkGiverPriority}, priorityWorkgiverCanBeDoneByMechs={priorityWorkGiverMechCapable}, cleanFilthPriorityInType={cleanFilthPriority}, cleanClearPollutionPriorityInType={cleanPollutionPriority}, mechAdds={mechWorkTypeAdds}, mechDuplicateRemovals={mechWorkTypeDuplicateRemovals}, mechReorders={mechWorkTypeReorders}, lifeStageAdds={lifeStageAdds}, naturalPriorityBumped={bumpedNaturalPriority}, requireCapableColonistSetFalse={madeNonColonistCompatible}, cleansweeperHasPriorityCleaning={cleansweeperHasPriority}.");
+            $"[PriorityClean Universal Patch] Def sync complete: priorityWorkGiverCount={priorityWorkGivers.Count}, priorityWorkGiverFallbackUsed={usedPriorityWorkGiverFallback}, priorityWorkGiverClassUpdates={workGiverClassUpdates}, priorityWorkGiverMechFlagUpdates={workGiverMechFlagUpdates}, cleanFilthGateUpdates={cleanFilthGateUpdates}, racesScanned={racesScanned}, eligibleMechRaces={eligibleMechRaces}, changedEligibleMechRaces={changedEligibleMechRaces}, mechAdds={mechWorkTypeAdds}, mechDuplicateRemovals={mechWorkTypeDuplicateRemovals}, mechReorders={mechWorkTypeReorders}, lifeStageAdds={lifeStageAdds}, requireCapableColonistSetFalse={madeNonColonistCompatible}.");
     }
 
-    private static int SynchronizeWorkGiverClass(out WorkGiverDef priorityWorkGiver)
+    private static List<WorkGiverDef> FindPriorityWorkGivers(WorkTypeDef priorityCleaning, out bool usedFallback)
     {
-        WorkGiverDef workGiver = DefDatabase<WorkGiverDef>.GetNamedSilentFail("PriorityCleanFilth")
-            ?? DefDatabase<WorkGiverDef>.GetNamedSilentFail("PriorityClean");
-        priorityWorkGiver = workGiver;
+        List<WorkGiverDef> workGivers = DefDatabase<WorkGiverDef>.AllDefsListForReading
+            .Where(workGiver => workGiver.workType == priorityCleaning)
+            .ToList();
 
+        if (workGivers.Count > 0)
+        {
+            usedFallback = false;
+            return workGivers;
+        }
+
+        usedFallback = true;
+        WorkGiverDef byFilthDefName = DefDatabase<WorkGiverDef>.GetNamedSilentFail("PriorityCleanFilth");
+        WorkGiverDef byLegacyDefName = DefDatabase<WorkGiverDef>.GetNamedSilentFail("PriorityClean");
+        if (byFilthDefName != null)
+        {
+            workGivers.Add(byFilthDefName);
+        }
+
+        if (byLegacyDefName != null && !workGivers.Contains(byLegacyDefName))
+        {
+            workGivers.Add(byLegacyDefName);
+        }
+
+        if (workGivers.Count == 0)
+        {
+            Log.Warning("[PriorityClean Universal Patch] Could not find PriorityClean workgiver defs by workType or known fallback defNames.");
+        }
+
+        return workGivers;
+    }
+
+    private static void SynchronizePriorityWorkGiverDef(WorkGiverDef workGiver, ref int classUpdates, ref int mechFlagUpdates)
+    {
         if (workGiver == null)
         {
-            Log.Warning("[PriorityClean Universal Patch] Could not find PriorityClean workgiver def (PriorityCleanFilth/PriorityClean).");
-            return 0;
+            return;
         }
 
+        string previousClass = workGiver.giverClass?.FullName ?? "<null>";
+        bool classChanged = false;
+        bool mechFlagChanged = false;
         Type compatType = typeof(WorkGiver_PriorityClean_Universal);
-        if (workGiver.giverClass == compatType)
+        if (workGiver.giverClass != compatType)
         {
-            return 0;
+            workGiver.giverClass = compatType;
+            classUpdates++;
+            classChanged = true;
         }
 
-        workGiver.giverClass = compatType;
-        return 1;
+        if (!workGiver.canBeDoneByMechs)
+        {
+            workGiver.canBeDoneByMechs = true;
+            mechFlagUpdates++;
+            mechFlagChanged = true;
+        }
+
+        if (classChanged || mechFlagChanged)
+        {
+            Log.Message(
+                $"[PriorityClean Universal Patch] Priority workgiver sync: defName={workGiver.defName}, classChanged={classChanged}, previousClass={previousClass}, newClass={workGiver.giverClass?.FullName ?? "<null>"}, mechFlagChanged={mechFlagChanged}, canBeDoneByMechs={workGiver.canBeDoneByMechs}.");
+        }
     }
 
-    private static int SynchronizeWorkGiverPriority(WorkGiverDef priorityWorkGiver)
+    private static int SynchronizeCleanFilthGateWorkGiver(WorkTypeDef cleaning)
     {
-        if (priorityWorkGiver == null)
+        WorkGiverDef cleanFilthWorkGiver = DefDatabase<WorkGiverDef>.GetNamedSilentFail("CleanFilth");
+        if (cleanFilthWorkGiver == null)
+        {
+            cleanFilthWorkGiver = DefDatabase<WorkGiverDef>.AllDefsListForReading.FirstOrDefault(workGiver =>
+                workGiver.workType == cleaning &&
+                workGiver.giverClass == typeof(WorkGiver_CleanFilth));
+        }
+
+        if (cleanFilthWorkGiver == null)
+        {
+            Log.Warning("[PriorityClean Universal Patch] Could not find CleanFilth workgiver to attach mech priority gate.");
+            return 0;
+        }
+
+        Type gateType = typeof(WorkGiver_CleanFilth_MechPriorityGate);
+        if (cleanFilthWorkGiver.giverClass == gateType)
         {
             return 0;
         }
 
-        WorkGiverDef cleanFilth = DefDatabase<WorkGiverDef>.GetNamedSilentFail("CleanFilth");
-        WorkGiverDef cleanClearPollution = DefDatabase<WorkGiverDef>.GetNamedSilentFail("CleanClearPollution");
-
-        int baseline = 0;
-        if (cleanFilth != null && cleanFilth.priorityInType > baseline)
-        {
-            baseline = cleanFilth.priorityInType;
-        }
-
-        if (cleanClearPollution != null && cleanClearPollution.priorityInType > baseline)
-        {
-            baseline = cleanClearPollution.priorityInType;
-        }
-
-        int tweaks = 0;
-        int desiredPriorityInType = baseline + 1;
-        if (priorityWorkGiver.priorityInType < desiredPriorityInType)
-        {
-            priorityWorkGiver.priorityInType = desiredPriorityInType;
-            tweaks++;
-        }
-
-        if (!priorityWorkGiver.canBeDoneByMechs)
-        {
-            priorityWorkGiver.canBeDoneByMechs = true;
-            tweaks++;
-        }
-
-        return tweaks;
+        string previousClass = cleanFilthWorkGiver.giverClass?.FullName ?? "<null>";
+        cleanFilthWorkGiver.giverClass = gateType;
+        Log.Message(
+            $"[PriorityClean Universal Patch] CleanFilth gate sync: defName={cleanFilthWorkGiver.defName}, previousClass={previousClass}, newClass={gateType.FullName}.");
+        return 1;
     }
 
     private static void SyncMechEnabledWorkTypes(
