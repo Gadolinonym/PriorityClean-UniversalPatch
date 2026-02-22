@@ -18,14 +18,14 @@ Load this mod **after**:
 - mods that alter mechanoid jobs/workgivers
 
 ## Can I Add Mid-Game?
-- Should be ok. Works in testing,
+- Should be ok. Works in testing.
 - May show one-time errors when loading existing saves.
-- Always back up saves before changing your mod list.
+- **Always** back up saves before changing your mod list.
 
 ## Removal Safety
-- Should be ok. Works in testing,
+- Should be ok. Works in testing.
 - If you remove `PriorityClean`, it is recommended to remove this patch mod as well.
-- Always back up saves before changing your mod list.
+- **Always** back up saves before changing your mod list.
 
 ## AI Disclosure
 This mod was primarily built from AI-generated content. It was vibe-coded in parts, then manually reviewed and tested before release.
