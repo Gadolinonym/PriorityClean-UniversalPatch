@@ -3,6 +3,7 @@
   <packageId>Gadolinium.PriorityClean.UniversalPatch</packageId>
   <name>PriorityClean - Universal Patch</name>
   <author>Gadolinium</author>
+  <url>https://github.com/Gadolinonym/PriorityClean-UniversalPatch</url>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
@@ -18,7 +19,6 @@
   </loadAfter>
   <description>PriorityClean - Universal Patch
   
-Adds PriorityCleaning to races that can clean, including RimWorld 1.6 colony mechs.
-Includes compatibility runtime support for PriorityClean workgiver checks and life-stage cleaning restrictions.
+This mod patches the capabilities of all pawns (notably Mechanoids), so that if they are capable of performing cleaning tasks, then they are also made capable of performing PriorityClean tasks (and will prioritize them)
 </description>
 </ModMetaData>
