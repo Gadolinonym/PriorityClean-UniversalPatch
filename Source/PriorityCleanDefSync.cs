@@ -23,7 +23,9 @@ public static class PriorityCleanDefSync
             return;
         }
 
-        int workGiverClassUpdates = SynchronizeWorkGiverClass();
+        WorkGiverDef priorityWorkGiver;
+        int workGiverClassUpdates = SynchronizeWorkGiverClass(out priorityWorkGiver);
+        int workGiverPriorityTweaks = SynchronizeWorkGiverPriority(priorityWorkGiver);
         int mechWorkTypeAdds = 0;
         int mechWorkTypeDuplicateRemovals = 0;
         int mechWorkTypeReorders = 0;
@@ -63,15 +65,22 @@ public static class PriorityCleanDefSync
 
         ThingDef cleansweeper = DefDatabase<ThingDef>.GetNamedSilentFail("Mech_Cleansweeper");
         bool cleansweeperHasPriority = cleansweeper?.race?.mechEnabledWorkTypes?.Contains(priorityCleaning) == true;
+        WorkGiverDef cleanFilth = DefDatabase<WorkGiverDef>.GetNamedSilentFail("CleanFilth");
+        WorkGiverDef cleanClearPollution = DefDatabase<WorkGiverDef>.GetNamedSilentFail("CleanClearPollution");
+        int priorityWorkGiverPriority = priorityWorkGiver?.priorityInType ?? -1;
+        bool priorityWorkGiverMechCapable = priorityWorkGiver?.canBeDoneByMechs ?? false;
+        int cleanFilthPriority = cleanFilth?.priorityInType ?? -1;
+        int cleanPollutionPriority = cleanClearPollution?.priorityInType ?? -1;
 
         Log.Message(
-            $"[PriorityClean Universal Patch] Def sync complete: workgiverClassUpdates={workGiverClassUpdates}, mechAdds={mechWorkTypeAdds}, mechDuplicateRemovals={mechWorkTypeDuplicateRemovals}, mechReorders={mechWorkTypeReorders}, lifeStageAdds={lifeStageAdds}, naturalPriorityBumped={bumpedNaturalPriority}, requireCapableColonistSetFalse={madeNonColonistCompatible}, cleansweeperHasPriorityCleaning={cleansweeperHasPriority}.");
+            $"[PriorityClean Universal Patch] Def sync complete: workgiverClassUpdates={workGiverClassUpdates}, workgiverPriorityTweaks={workGiverPriorityTweaks}, priorityWorkgiverPriorityInType={priorityWorkGiverPriority}, priorityWorkgiverCanBeDoneByMechs={priorityWorkGiverMechCapable}, cleanFilthPriorityInType={cleanFilthPriority}, cleanClearPollutionPriorityInType={cleanPollutionPriority}, mechAdds={mechWorkTypeAdds}, mechDuplicateRemovals={mechWorkTypeDuplicateRemovals}, mechReorders={mechWorkTypeReorders}, lifeStageAdds={lifeStageAdds}, naturalPriorityBumped={bumpedNaturalPriority}, requireCapableColonistSetFalse={madeNonColonistCompatible}, cleansweeperHasPriorityCleaning={cleansweeperHasPriority}.");
     }
 
-    private static int SynchronizeWorkGiverClass()
+    private static int SynchronizeWorkGiverClass(out WorkGiverDef priorityWorkGiver)
     {
         WorkGiverDef workGiver = DefDatabase<WorkGiverDef>.GetNamedSilentFail("PriorityCleanFilth")
             ?? DefDatabase<WorkGiverDef>.GetNamedSilentFail("PriorityClean");
+        priorityWorkGiver = workGiver;
 
         if (workGiver == null)
         {
@@ -87,6 +96,44 @@ public static class PriorityCleanDefSync
 
         workGiver.giverClass = compatType;
         return 1;
+    }
+
+    private static int SynchronizeWorkGiverPriority(WorkGiverDef priorityWorkGiver)
+    {
+        if (priorityWorkGiver == null)
+        {
+            return 0;
+        }
+
+        WorkGiverDef cleanFilth = DefDatabase<WorkGiverDef>.GetNamedSilentFail("CleanFilth");
+        WorkGiverDef cleanClearPollution = DefDatabase<WorkGiverDef>.GetNamedSilentFail("CleanClearPollution");
+
+        int baseline = 0;
+        if (cleanFilth != null && cleanFilth.priorityInType > baseline)
+        {
+            baseline = cleanFilth.priorityInType;
+        }
+
+        if (cleanClearPollution != null && cleanClearPollution.priorityInType > baseline)
+        {
+            baseline = cleanClearPollution.priorityInType;
+        }
+
+        int tweaks = 0;
+        int desiredPriorityInType = baseline + 1;
+        if (priorityWorkGiver.priorityInType < desiredPriorityInType)
+        {
+            priorityWorkGiver.priorityInType = desiredPriorityInType;
+            tweaks++;
+        }
+
+        if (!priorityWorkGiver.canBeDoneByMechs)
+        {
+            priorityWorkGiver.canBeDoneByMechs = true;
+            tweaks++;
+        }
+
+        return tweaks;
     }
 
     private static void SyncMechEnabledWorkTypes(
