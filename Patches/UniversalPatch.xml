@@ -50,7 +50,19 @@
       <li>fyarn.PriorityClean</li>
     </mods>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/WorkGiverDef[defName='PriorityCleanFilth']/giverClass</xpath>
+      <xpath>/Defs/WorkGiverDef[defName='PriorityCleanFilth' or defName='PriorityClean']/giverClass</xpath>
+      <value>
+        <giverClass>Gadolinium.PriorityClean.UniversalPatch.WorkGiver_PriorityClean_Universal</giverClass>
+      </value>
+    </match>
+  </Operation>
+
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>fyarn.PriorityClean</li>
+    </mods>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/WorkGiverDef[(defName='PriorityCleanFilth' or defName='PriorityClean') and not(giverClass)]</xpath>
       <value>
         <giverClass>Gadolinium.PriorityClean.UniversalPatch.WorkGiver_PriorityClean_Universal</giverClass>
       </value>
