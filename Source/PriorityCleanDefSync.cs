@@ -103,7 +103,7 @@ public static class PriorityCleanDefSync
         }
 
         Log.Message(
-            $"[PriorityClean Universal Patch] Def sync complete: priorityWorkGiverCount={priorityWorkGivers.Count}, priorityWorkGiverFallbackUsed={usedPriorityWorkGiverFallback}, priorityWorkGiverClassUpdates={workGiverClassUpdates}, priorityWorkGiverMechFlagUpdates={workGiverMechFlagUpdates}, cleanFilthGateUpdates={cleanFilthGateUpdates}, racesScanned={racesScanned}, eligibleMechRaces={eligibleMechRaces}, changedEligibleMechRaces={changedEligibleMechRaces}, mechAdds={mechWorkTypeAdds}, mechDuplicateRemovals={mechWorkTypeDuplicateRemovals}, mechReorders={mechWorkTypeReorders}, lifeStageAdds={lifeStageAdds}, requireCapableColonistSetFalse={madeNonColonistCompatible}.");
+            $"[PriorityClean Universal Patch] Def sync complete: priorityWorkGiverCount={priorityWorkGivers.Count}, priorityWorkGiverFallbackUsed={usedPriorityWorkGiverFallback}, priorityWorkGiverClassUpdates={workGiverClassUpdates}, priorityWorkGiverMechFlagUpdates={workGiverMechFlagUpdates}, cleanFilthGateUpdates={cleanFilthGateUpdates}, racesScanned={racesScanned}, eligibleMechRaces={eligibleMechRaces}, changedEligibleMechRaces={changedEligibleMechRaces}, mechAdds={mechWorkTypeAdds}, mechDuplicateRemovals={mechWorkTypeDuplicateRemovals}, mechReorders={mechWorkTypeReorders}, lifeStageAdds={lifeStageAdds}, requireCapableColonistSetFalse={madeNonColonistCompatible}, mechSelfHealChanged={MechPriorityWorkStateUtility.SelfHealChangedCount}, mechSelfHealSkipped={MechPriorityWorkStateUtility.SelfHealSkippedCount}, mechSelfHealErrors={MechPriorityWorkStateUtility.SelfHealErrorCount}.");
     }
 
     private static List<WorkGiverDef> FindPriorityWorkGivers(WorkTypeDef priorityCleaning, out bool usedFallback)

@@ -18,7 +18,13 @@ public class WorkGiver_PriorityClean_Universal : global::PriorityClean.WorkGiver
             return base.ShouldSkip(pawn, forced);
         }
 
-        return !pawn.IsColonyMech;
+        if (!pawn.IsColonyMech)
+        {
+            return true;
+        }
+
+        MechPriorityWorkStateUtility.EnsurePriorityCleaningStateForColonyMech(pawn);
+        return !MechPriorityWorkStateUtility.CanUsePriorityCleaningNow(pawn);
     }
 
     public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -34,6 +40,12 @@ public class WorkGiver_PriorityClean_Universal : global::PriorityClean.WorkGiver
         }
 
         if (!pawn.IsColonyMech)
+        {
+            return false;
+        }
+
+        MechPriorityWorkStateUtility.EnsurePriorityCleaningStateForColonyMech(pawn);
+        if (!MechPriorityWorkStateUtility.CanUsePriorityCleaningNow(pawn))
         {
             return false;
         }

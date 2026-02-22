@@ -24,6 +24,12 @@ public class WorkGiver_CleanFilth_MechPriorityGate : WorkGiver_CleanFilth
             return true;
         }
 
+        MechPriorityWorkStateUtility.EnsurePriorityCleaningStateForColonyMech(pawn);
+        if (!MechPriorityWorkStateUtility.CanUsePriorityCleaningNow(pawn))
+        {
+            return false;
+        }
+
         return HasReachableReservablePriorityFilth(pawn, forced);
     }
 
