@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Patch>
-  <!-- RimWorld 1.6+: mechs use mechEnabledWorkTypes, not workEnabled -->
+  <!-- RimWorld 1.6+ mech path: add PriorityCleaning where Cleaning already exists in mechEnabledWorkTypes. -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>fyarn.PriorityClean</li>
@@ -22,7 +22,7 @@
     </match>
   </Operation>
 
-  <!-- Legacy fallback for mods that still expose workEnabled -->
+  <!-- Legacy fallback for race frameworks that still expose workEnabled instead of mechEnabledWorkTypes. -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>fyarn.PriorityClean</li>
@@ -44,7 +44,7 @@
     </match>
   </Operation>
 
-  <!-- Route PriorityClean workgiver to compatibility subclass that also allows colony mechs -->
+  <!-- Route PriorityClean workgiver defs to a compatibility subclass that also allows colony mechs. -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>fyarn.PriorityClean</li>
@@ -69,7 +69,7 @@
     </match>
   </Operation>
 
-  <!-- Gate regular CleanFilth for colony mechs while priority filth exists -->
+  <!-- Gate regular CleanFilth for colony mechs while priority filth exists so mechs do priority filth first. -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>fyarn.PriorityClean</li>

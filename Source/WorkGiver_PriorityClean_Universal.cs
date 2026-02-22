@@ -4,6 +4,7 @@ using Verse.AI;
 
 namespace Gadolinium.PriorityClean.UniversalPatch;
 
+// Extends PriorityClean's workgiver so colony mechs can run the same priority-filth checks as colonists.
 public class WorkGiver_PriorityClean_Universal : global::PriorityClean.WorkGiver_PriorityClean
 {
     public override bool ShouldSkip(Pawn pawn, bool forced = false)
@@ -15,6 +16,7 @@ public class WorkGiver_PriorityClean_Universal : global::PriorityClean.WorkGiver
 
         if (pawn.IsColonistPlayerControlled)
         {
+            // Preserve upstream behavior for colonists.
             return base.ShouldSkip(pawn, forced);
         }
 
@@ -36,6 +38,7 @@ public class WorkGiver_PriorityClean_Universal : global::PriorityClean.WorkGiver
 
         if (pawn.IsColonistPlayerControlled)
         {
+            // Preserve upstream behavior for colonists.
             return base.HasJobOnThing(pawn, t, forced);
         }
 

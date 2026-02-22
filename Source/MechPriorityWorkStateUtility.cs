@@ -5,6 +5,7 @@ using Verse;
 
 namespace Gadolinium.PriorityClean.UniversalPatch;
 
+// Maintains mech work-state parity when loading saves created before this patch existed.
 public static class MechPriorityWorkStateUtility
 {
     private static readonly HashSet<int> ProcessedPawnIds = new HashSet<int>();
@@ -38,6 +39,7 @@ public static class MechPriorityWorkStateUtility
         }
 
         int pawnId = pawn.thingIDNumber;
+        // Only migrate each pawn once per session to avoid repeated writes/log spam.
         if (!ProcessedPawnIds.Add(pawnId))
         {
             return;
@@ -53,6 +55,7 @@ public static class MechPriorityWorkStateUtility
                 return;
             }
 
+            // Mirror the pawn's existing Cleaning priority when enabling PriorityCleaning.
             int cleaningPriority = workSettings.GetPriority(WorkTypeDefOf.Cleaning);
             if (cleaningPriority <= 0)
             {
@@ -60,6 +63,7 @@ public static class MechPriorityWorkStateUtility
             }
 
             workSettings.SetPriority(PriorityCleaning, cleaningPriority);
+            // Clear cached disabled work-type state so the change is recognized immediately.
             pawn.Notify_DisabledWorkTypesChanged();
             selfHealChangedCount++;
 

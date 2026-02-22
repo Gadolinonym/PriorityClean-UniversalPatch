@@ -1,6 +1,38 @@
-# PriorityClean-UniversalPatch
-Patches all races (notably mechanoids) that can clean with the ability to also perform PriorityClean
+# PriorityClean - Universal Patch
 
-## AI Disclaimer
-Parts of this mod were created with assistance from ChatGPT and other generative AI tools.  
-All generated changes were manually reviewed, edited, and validated before inclusion.
+This mod patches the capabilities of all pawns (notably Mechanoids), so that if they are capable of performing cleaning tasks, they are also capable of performing PriorityClean tasks (and will prioritize them)
+
+## Key Features
+- Enables `PriorityCleaning` for mechanoids that already support `Cleaning`.
+- Makes colony mechanoids prioritize priority filth before normal cleaning filth.
+- Supports vanilla and modded mechs that expose cleaning work through standard work type defs.
+- Keeps humanlike PriorityClean behavior aligned with the original mod.
+
+## Requirements
+- Requires **PriorityClean** (`fyarn.PriorityClean`).
+
+## Load Order
+Load this mod **after**:
+- `PriorityClean`
+- mods that add mechanoids
+- mods that alter mechanoid jobs/workgivers
+
+## Can I Add Mid-Game?
+- Should be ok. Works in testing,
+- May show one-time errors when loading existing saves.
+- Always back up saves before changing your mod list.
+
+## Removal Safety
+- Should be ok. Works in testing,
+- If you remove `PriorityClean`, it is recommended to remove this patch mod as well.
+- Always back up saves before changing your mod list.
+
+## AI Disclosure
+This mod was primarily built from AI-generated content. It was vibe-coded in parts, then manually reviewed and tested before release.
+
+## Technical Notes (Short)
+This patch applies XML and runtime sync to:
+- add `PriorityCleaning` to eligible mech cleaning work type lists,
+- route PriorityClean workgiver defs through a mech-compatible class,
+- gate regular mech `CleanFilth` work while reachable priority filth exists,
+- keep life-stage cleaning restrictions mirrored to `PriorityCleaning` where needed.

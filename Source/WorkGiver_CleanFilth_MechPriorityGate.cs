@@ -5,6 +5,7 @@ using Verse.AI;
 
 namespace Gadolinium.PriorityClean.UniversalPatch;
 
+// Prevents colony mechs from taking regular CleanFilth while reachable priority filth still exists.
 public class WorkGiver_CleanFilth_MechPriorityGate : WorkGiver_CleanFilth
 {
     public override bool ShouldSkip(Pawn pawn, bool forced = false)
@@ -16,6 +17,7 @@ public class WorkGiver_CleanFilth_MechPriorityGate : WorkGiver_CleanFilth
 
         if (!pawn.IsColonyMech)
         {
+            // Non-mechs retain vanilla cleaning behavior.
             return base.ShouldSkip(pawn, forced);
         }
 
@@ -27,6 +29,7 @@ public class WorkGiver_CleanFilth_MechPriorityGate : WorkGiver_CleanFilth
         MechPriorityWorkStateUtility.EnsurePriorityCleaningStateForColonyMech(pawn);
         if (!MechPriorityWorkStateUtility.CanUsePriorityCleaningNow(pawn))
         {
+            // If a mech cannot run PriorityCleaning yet, never suppress regular CleanFilth.
             return false;
         }
 

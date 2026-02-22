@@ -6,11 +6,13 @@ using Verse;
 
 namespace Gadolinium.PriorityClean.UniversalPatch;
 
+// Synchronizes patched defs at startup so XML/runtime changes are present before normal job scanning begins.
 [StaticConstructorOnStartup]
 public static class PriorityCleanDefSync
 {
     static PriorityCleanDefSync()
     {
+        // Def databases are not stable until long events finish loading.
         LongEventHandler.ExecuteWhenFinished(SynchronizePriorityCleanDefs);
     }
 
@@ -24,6 +26,7 @@ public static class PriorityCleanDefSync
             return;
         }
 
+        // Route all PriorityCleaning workgivers through our compatibility class and allow mech execution.
         bool usedPriorityWorkGiverFallback;
         List<WorkGiverDef> priorityWorkGivers = FindPriorityWorkGivers(priorityCleaning, out usedPriorityWorkGiverFallback);
         int workGiverClassUpdates = 0;
@@ -269,6 +272,7 @@ public static class PriorityCleanDefSync
             return 0;
         }
 
+        // Keep PriorityCleaning min-age restrictions aligned with Cleaning for races that define both.
         int additions = 0;
         for (int i = 0; i < cleaningMinAges.Count; i++)
         {

@@ -6,6 +6,7 @@ using Verse;
 
 namespace Gadolinium.PriorityClean.UniversalPatch;
 
+// Central helper for "is this filth marked as priority?" using PriorityClean's internal logic.
 public static class PriorityFilthUtility
 {
     private static readonly MethodInfo IsPriorityFilthMethod = ResolveIsPriorityFilthMethod();
@@ -19,6 +20,7 @@ public static class PriorityFilthUtility
             return namedMethod;
         }
 
+        // Fallback for upstream method renames: select any private static bool method with a single Filth parameter.
         return workGiverType.GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
             .FirstOrDefault(method =>
             {
