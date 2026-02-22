@@ -40,4 +40,4 @@ This patch applies XML and runtime sync to:
 - keep life-stage cleaning restrictions mirrored to `PriorityCleaning` where needed.
 
 ### Github: <https://github.com/Gadolinonym/PriorityClean-UniversalPatch>
-### Steam Workshop: <https://example.com/>
+### Steam Workshop: <https://steamcommunity.com/sharedfiles/filedetails/?id=3671230260>
