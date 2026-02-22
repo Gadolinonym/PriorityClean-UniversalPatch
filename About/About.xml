@@ -3,7 +3,7 @@
   <packageId>Gadolinium.PriorityClean.UniversalPatch</packageId>
   <name>PriorityClean - Universal Patch</name>
   <author>Gadolinium</author>
-  <modVersion>1.0</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">1.0.0</modVersion>
   <url>https://github.com/Gadolinonym/PriorityClean-UniversalPatch</url>
   <modIconPath>About/ModIcon</modIconPath>
   <supportedVersions>
